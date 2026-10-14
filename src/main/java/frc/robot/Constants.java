@@ -4,7 +4,12 @@
 
 package frc.robot;
 
+import java.util.Map;
+
 import com.ctre.phoenix6.CANBus;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+
+import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -41,6 +46,11 @@ public final class Constants {
 
   public static class ShooterConstants {
     public static final int kMotorId = 28; // must match Phoenix Tuner X
+    public static final double kP = 0.11; // Proportional gain
+    public static final double kI = 0.0;  // Integral gain
+    public static final double kD = 0.01; // Derivative gain
+    public static final double kV = 0.12; // Velocity feedforward (volts per RPS)
+
   }
 
   public static class SerializerConstants {
@@ -55,5 +65,21 @@ public final class Constants {
      * don't get stuck in a flywheel that isn't moving yet. Tune on the robot.
      */
     public static final double kShooterReadyRps = 20.0;
+
+
+
+  }
+
+  public static class AimAndShootConstants {
+    /*
+     * Auto-interpolating hash map of shooting values formatted as following:
+     * <Distance,ShooterSpeed (RPM)>
+     * To use the table, use shooterTable.get(Double distance) to get the RPM
+     */
+    public final static InterpolatingDoubleTreeMap shooterTable = InterpolatingDoubleTreeMap.ofEntries(
+      Map.entry(null, null),
+      Map.entry(null,null)
+    );
+
   }
 }
