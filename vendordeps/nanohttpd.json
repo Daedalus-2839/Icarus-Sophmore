@@ -1,0 +1,18 @@
+{
+  "fileName": "nanohttpd.json",
+  "name": "NanoHTTPD",
+  "frcYear":2026,
+  "version": "2.3.1",
+  "uuid": "a1b2c3d4-nano-httpd-0000-000000000000",
+  "mavenUrls": ["https://maven.org"],
+  "jsonUrl": "",
+  "javaDependencies": [
+    {
+      "groupId": "org.nanohttpd",
+      "artifactId": "nanohttpd",
+      "version": "2.3.1"
+    }
+  ],
+  "jniDependencies": [],
+  "cppDependencies": []
+}

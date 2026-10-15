@@ -9,6 +9,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
 
 
@@ -24,7 +25,7 @@ public class FollowCode extends Command{
     public FollowCode(CommandSwerveDrivetrain drive, DoubleSupplier xSpeed, DoubleSupplier ySpeed) {
         this.drive = drive;
         this.xSpeed = xSpeed.getAsDouble();
-        this.ySpeed =ySpeed.getAsDouble();      
+        this.ySpeed = ySpeed.getAsDouble();      
         addRequirements(drive);
         pids.enableContinuousInput(-Math.PI, Math.PI);
     }
@@ -34,7 +35,7 @@ public class FollowCode extends Command{
 
   @Override
   public void execute() {
-     drive.setControl(request.withVelocityX(xSpeed).withVelocityY(ySpeed).withRotationalRate(pids.calculate(Units.degreesToRadians(LimelightHelpers.getTX()))));
+    drive.setControl(request.withVelocityX(xSpeed).withVelocityY(ySpeed).withRotationalRate(pids.calculate(Units.degreesToRadians(LimelightHelpers.getTX(Constants.FollowCodeConstants.limelightName)))));
   }
 
   @Override

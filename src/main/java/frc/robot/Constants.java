@@ -82,4 +82,7 @@ public final class Constants {
     );
 
   }
+  public static class FollowCodeConstants{
+    public final static String limelightName = "limelight";
+  }
 }

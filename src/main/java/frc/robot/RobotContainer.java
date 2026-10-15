@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
+import frc.robot.commands.FollowCode;
 import frc.robot.commands.RunIntake;
 import frc.robot.commands.RunSerializer;
 import frc.robot.commands.RunShooter;
@@ -74,6 +74,9 @@ public class RobotContainer {
         joystick.b().whileTrue(drivetrain.applyRequest(() ->
             point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
         ));
+
+        //Since FollowCode takes in DoubleSuppliers, you must use the lambda ()-> to pass the primitives
+        joystick.x().whileTrue(new FollowCode(drivetrain,()->0.8,()->0.8));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
