@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<style>
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #000;
+  font-family: Verdana, sans-serif;
+  overflow: hidden;
+}
+
+.wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.background {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  align-items: center;
+  justify-content: center;
+  filter: blur(6px);
+}
+
+.overlay {
+  position: relative;
+  inset: 0;
+  z-index: 2;
+  color: white;
+  padding: 24px;
+  flex: 1;
+  margin: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+svg {
+  display: block;
+  font: 20em 'Montserrat';
+  width: 80%;
+  height: 300px;
+  margin-top:140px;
+}
+
+.text-copy {
+  fill: none;
+  stroke: white;
+  stroke-dasharray: 6% 29%;
+  stroke-width: 5px;
+  animation: stroke-offset 5.5s infinite linear;
+}
+
+.text-copy:nth-child(1) {
+  stroke: #FFD700;
+  animation-delay: -1s;
+}
+
+.text-copy:nth-child(2) {
+  stroke: #847900;
+  animation-delay: -2s;
+}
+
+.text-copy:nth-child(3) {
+  stroke: #DAA520;
+  animation-delay: -3s;
+}
+
+.text-copy:nth-child(4) {
+  stroke: #FF8C00;
+  animation-delay: -4s;
+}
+
+@keyframes stroke-offset {
+  100% {
+    stroke-dashoffset: -35%;
+  }
+}
+.bar {
+  width: 300px;
+  height: 16px;
+  min-height: 10px;
+  background: #2222226e;
+  border: 1px solid #555;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 6px 0 14px;
+}
+
+.bar-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #FFD700, #FF8C00);
+  transition: width 0.1s linear;
+}
+.ac {
+    width: 300px;
+    height: 30px;
+    min-height: 10px;
+    background: #2222226e;
+    border: 1px solid #555;
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 6px 0 14px;
+    color: white;
+}
+.tptext {
+  font-weight: 200;
+  color:rgba(255, 255, 255, 0.54);
+  -webkit-text-stroke: 0.2px #000000;
+  filter: drop-shadow(2px 4px 4px #3e3e3e)
+}
+.large {
+  font-weight: 400;
+  font-size: 20px;
+  color:rgba(255, 255, 255, 0.733);
+}
+canvas {
+  aspect-ratio: 1/1;
+  width:90%;
+  margin-top:20%;
+}
+
+.slider{
+  display:flex;
+}
+</style>
+</head>
+
+<body>
+
+  <div style="display:flex;" class="wrapper">
+  <center>
+  <div class="background">
+    <svg viewBox="0 0 960 300">
+      <symbol id="s-text">
+        <text text-anchor="middle" x="50%" y="80%">2839</text>
+      </symbol>
+      
+      <g>
+        <use href="#s-text" class="text-copy"></use>
+        <use href="#s-text" class="text-copy"></use>
+        <use href="#s-text" class="text-copy"></use>
+        <use href="#s-text" class="text-copy"></use>
+      </g>
+    </svg>
+    <h1 style="font-weight:900;background:linear-gradient(rgb(235, 192, 18), rgb(0, 0, 0));-webkit-text-stroke: 2px #000000;font-size:100px; -webkit-background-clip: text;background-clip: text;-webkit-text-fill-color: transparent;">Daedalus</h1>
+  </div>
+  </center>
+  <div style="display:flex;width:30%;flex:1;" class="overlay">
+    <p class="tptext" >ShooterSpeed: <span id="ShooterSpeed">0</span></p>
+    
+    <div class="bar">
+    <div class="bar-fill" id="ShooterSpeedBar"></div>
+    </div>
+    <p class="tptext">ShooterKP: <span id="ShooterKP">0</span></p>
+    <div class="bar">
+    <div class="bar-fill" id="ShooterKPBar"></div>
+    </div>
+    <p class="tptext">ShooterKI: <span id="ShooterKI">0</span></p>
+    <div class="bar">
+    <div class="bar-fill" id="ShooterKIBar"></div>
+    </div>
+    <p class="tptext">ShooterKD: <span id="ShooterKD">0</span></p>
+    <div class="bar">
+    <div class="bar-fill" id="ShooterKDBar"></div>
+    </div>
+    <p class="tptext">PID Settings:</p>
+    <div style="display:flex;justify-content:space-evenly;">
+      <div>
+        <div class="slider">
+        <input type="range" min="0" max="100" value="50" id="kPSlider">
+        <p class="tptext">kP:<span id="appliedkP">0</span></p>
+        </div>
+
+        <div class="slider">
+          <input type="range" min="0" max="100" value="50" id="kISlider">
+          <p class="tptext">kI:<span id="appliedkI">0</span></p>
+        </div>
+
+        <div class="slider">
+          <input type="range" min="0" max="100" value="50" id="kDSlider">
+          <p class="tptext">kD:<span id="appliedkD">0</span></p>
+        </div>
+      </div>
+      <button style="height:25%;align-self:center;"  onclick="applyPIDs()">Set PIDs</button>
+  </div>
+</div>
+  <div style="display:flex;width:30%;flex:1;" class="overlay">
+  
+  <p>Manual Shooter Speed:</p>
+  <input id="MESS_SPEED" type="text" placeholder="Speed (Rotations)">
+  <br>
+  <input id="MESS_TIME" type="text" placeholder="Time (Seconds)">
+  <br>
+  <button onclick="runObjectForTime()">Run Motors</button>
+  </div>
+
+</div>
+
+<script>
+const limits = {
+  TargetSpeed: 6000,
+  ShooterSpeed: 6000,
+  ShooterKP:100,
+  ShooterKI:100,
+  ShooterKD:100,
+};
+
+async function updateDashboard() {
+try {
+    const res = await fetch('/data');
+    const dataDB = await res.json();
+    console.log("Recieved Data: "+dataDB);
+
+    for (const key in dataDB) {
+      console.log("Key: "+key)
+      const valueEl = document.getElementById(key);
+      if (valueEl) valueEl.innerText = dataDB[key];
+      console.log(dataDB[key]);
+
+      const bar = document.getElementById(key + "Bar");
+      if (bar && limits[key] !== undefined) {
+        const percent = Math.min(
+          Math.abs(dataDB[key]) / limits[key] * 100,
+          100
+        );
+        bar.style.width = percent + "%";
+      }
+    }
+  document.getElementById("status").innerHTML = '<p style="color:lightgreen;">Connected</p> ' + new Date().toLocaleTimeString();
+  } catch (err) {
+  console.log("Caught Error: "+err);
+  document.getElementById("status").innerHTML = '<p style="color:red;">Disconnected</p> ';
+  }
+}
+
+setInterval(updateDashboard, 100);
+
+document.getElementById('kPSlider').addEventListener('change', e => {
+  document.getElementById('appliedkP').innerHTML=e.target.value;
+});
+document.getElementById('kISlider').addEventListener('change', e => {
+  document.getElementById('appliedkI').innerHTML=e.target.value;
+});
+document.getElementById('kDSlider').addEventListener('change', e => {
+  document.getElementById('appliedkD').innerHTML=e.target.value;
+});
+
+async function applyPIDs() {
+  const targetChooser = document.getElementById("targetChooser");
+  const elP = document.getElementById("kPSlider");
+  const elI = document.getElementById("kISlider");
+  const elD = document.getElementById("kDSlider");
+  try {
+    const params = new URLSearchParams({
+      kPvar: elP.value,
+      kIvar: elI.value,
+      kDvar: elD.value,
+    });
+    await fetch(`/setpid?${params.toString()}`);
+  } catch (err) {
+    console.log("Failed to set PIDs:", err);
+  }
+}
+async function runObjectForTime(){
+  const speedVar = document.getElementById('MESS_SPEED').value;
+  const timeVar = document.getElementById('MESS_TIME').time;
+   try {
+    const params = new URLSearchParams({
+      value: speedVar,
+      time: timeVar
+    });
+    await fetch(`/setmotor?${params.toString()}`);
+  } catch (err) {
+    console.log("Failed to Apply motor vals", err);
+  }
+}
+</script>
+</body>
+</html>

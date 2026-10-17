@@ -15,7 +15,7 @@ public class Shooter extends SubsystemBase {
 
 
   private final TalonFX m_motor = new TalonFX(ShooterConstants.kMotorId, CANConstants.kCanivore); // CAN ID  -must match Phoenix Tuner X
-  private final TalonFXConfiguration pids = new TalonFXConfiguration();
+  public final TalonFXConfiguration pids = new TalonFXConfiguration();
   private final double feedForward = 0.5;
   
 
@@ -26,7 +26,12 @@ public class Shooter extends SubsystemBase {
     pids.Slot0.kV = ShooterConstants.kV; // Velocity feedforward (volts per RPS)
     m_motor.getConfigurator().apply(pids);
   }
-
+  public void setPIDs(double kP, double kI,double kD){
+    pids.Slot0.kP = kP; // Proportional gain
+    pids.Slot0.kI = kI;  // Integral gain
+    pids.Slot0.kD = kD; // Derivative gain
+    m_motor.getConfigurator().apply(pids);
+  }
 
   @Override
   public void periodic() {

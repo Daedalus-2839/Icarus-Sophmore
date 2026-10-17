@@ -24,9 +24,10 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Serializer;
 import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.WebServer;
 
 public class RobotContainer {
-    private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
+    public static double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
     /* Setting up bindings for necessary control of the swerve drive platform */
@@ -47,6 +48,8 @@ public class RobotContainer {
     private final Intake intake = new Intake();
     private final Serializer serializer = new Serializer();
 
+    /* Webserver */
+    private final WebServer webServer = new WebServer(drivetrain,shooter);
     public RobotContainer() {
         configureBindings();
     }

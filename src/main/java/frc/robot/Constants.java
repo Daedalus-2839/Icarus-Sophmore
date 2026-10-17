@@ -85,4 +85,7 @@ public final class Constants {
   public static class FollowCodeConstants{
     public final static String limelightName = "limelight";
   }
+   public class WebServer {
+      public static int portNumber = 5809;
+  }
 }
