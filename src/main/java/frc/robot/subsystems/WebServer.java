@@ -24,12 +24,7 @@ public class WebServer extends SubsystemBase {
     private static Shooter shooter;
 
     //The data that is updated periodically by the webserver
-    private static final Map<String, Double> DATALIST = Map.of(
-        "ShooterKP",shooter.pids.Slot0.kP,
-        "ShooterKI",shooter.pids.Slot0.kI,
-        "ShooterKD",shooter.pids.Slot0.kD,
-        "ShooterSpeed",shooter.getVelocityRps()
-    );
+    private static final Map<String, Double> DATALIST;
     private static IHTTPSession session;
     private final DashboardServer server;    
 
@@ -37,7 +32,13 @@ public class WebServer extends SubsystemBase {
     public WebServer(CommandSwerveDrivetrain drivetrain, Shooter shooter) {
         WebServer.drivetrain = drivetrain;
         WebServer.shooter = shooter;
-        this.server=new DashboardServer(Constants.WebServer.portNumber);
+        WebServer.DATALIST= Map.of(
+        "ShooterKP",shooter.pids.Slot0.kP,
+        "ShooterKI",shooter.pids.Slot0.kI,
+        "ShooterKD",shooter.pids.Slot0.kD,
+        "ShooterSpeed",shooter.getVelocityRps()
+        );
+        this.server= new DashboardServer(Constants.WebServer.portNumber);
         try {
             server.start(5000, false);
             System.out.println("Dashboard: http://" + getLocalIp() + ":"+Constants.WebServer.portNumber+"/");
