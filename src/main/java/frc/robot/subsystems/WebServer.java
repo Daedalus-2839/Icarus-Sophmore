@@ -5,7 +5,8 @@ import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.DoubleSupplier;
+import java.util.function.Function;
 
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -13,9 +14,6 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import frc.robot.Constants;
-import frc.robot.RobotContainer;
-import frc.robot.generated.TunerConstants;
-import edu.wpi.first.units.Units;
 
 
 public class WebServer extends SubsystemBase {
@@ -24,19 +22,19 @@ public class WebServer extends SubsystemBase {
     private static Shooter shooter;
 
     //The data that is updated periodically by the webserver
-    private static final Map<String, Double> DATALIST;
+    private static Map<String, DoubleSupplier> DATALIST;
     private static IHTTPSession session;
     private final DashboardServer server;    
-
-
+    
+    
     public WebServer(CommandSwerveDrivetrain drivetrain, Shooter shooter) {
         WebServer.drivetrain = drivetrain;
         WebServer.shooter = shooter;
-        WebServer.DATALIST= Map.of(
-        "ShooterKP",shooter.pids.Slot0.kP,
-        "ShooterKI",shooter.pids.Slot0.kI,
-        "ShooterKD",shooter.pids.Slot0.kD,
-        "ShooterSpeed",shooter.getVelocityRps()
+        WebServer.DATALIST= Map.<String,DoubleSupplier>of(
+        "ShooterKP",()->shooter.pids.Slot0.kP,
+        "ShooterKI",()->shooter.pids.Slot0.kI,
+        "ShooterKD",()->shooter.pids.Slot0.kD,
+        "ShooterSpeed",shooter::getVelocityRps
         );
         this.server= new DashboardServer(Constants.WebServer.portNumber);
         try {
@@ -68,12 +66,11 @@ public class WebServer extends SubsystemBase {
             }
             //A map containing a uri token and the response value to serve. whatever is in this map will execute when a uri is referenced
             //Every method returns a HTTP response to confirm, but other things may be executed in the method
-            Map<String,Response> uris= Map.of(
-            "/data",getData(), //gets the main json datastream from the robot
-            "/setpid",setPIDs(), //sets the pids via a uri request
-            "/setmotor",setMotor() //will run the motor for a specified time
+            private Map<String, Function<IHTTPSession, Response>> uris = Map.<String, Function<IHTTPSession, Response>>of(
+            "/data", session -> getData(session),
+            "/setpid", session -> setPIDs(session),
+            "/setmotor", session -> setMotor(session)
             );
-
             //both these methods will automatically get a speified value from the uri token
             private double getDouble(Map<String, List<String>> p,String id,int index){
                 try {
@@ -103,8 +100,18 @@ public class WebServer extends SubsystemBase {
                 json.append("}");//claude who is JSON???? yo soy programmador de amiente
                 return json.toString();
             }
+            private String createJsonDoubleSupplier(Map<String,DoubleSupplier> jsonVals){
+                /*
+                 * creates a simple json list from a map of strings and doubles and converts it to a string
+                 */
+                StringBuilder json = new StringBuilder("{");
+                jsonVals.forEach((name,value)->json.append("\""+name+"\":").append(value.getAsDouble()).append(","));
+                json.deleteCharAt(json.lastIndexOf(","));
+                json.append("}");//claude who is JSON???? yo soy programmador de amiente
+                return json.toString();
+            }
             
-            private Response setPIDs(){
+            private Response setPIDs(IHTTPSession session){
                 /*
                  * Sets the pids of the shooter module based on URIs sent by the frontend
                  */
@@ -122,18 +129,16 @@ public class WebServer extends SubsystemBase {
                     return newFixedLengthResponse("Issue Occurred: " + e);
             }
             }
-
-            private Response getData(){
+            private Response getData(IHTTPSession session){
                 /*
                  * Sends data from the private static final declared DATALIST
                  * 
                  */
-                Map<String, List<String>> p = session.getParameters();
-                Response r= newFixedLengthResponse(createJson(WebServer.DATALIST));
+                Response r= newFixedLengthResponse(createJsonDoubleSupplier(WebServer.DATALIST));
                 r.addHeader("Content-Type","application/json");
                 return r;
             }
-            private Response setMotor(){
+            private Response setMotor(IHTTPSession session){
                 /*
                  * this will set the shooter motor to a specific speed based on input parameters for a certain time
                  */
@@ -150,18 +155,14 @@ public class WebServer extends SubsystemBase {
             
             @Override
             public Response serve(IHTTPSession session) {
-                WebServer.session = session;
 
-                String uri = WebServer.session.getUri();
+                String uri = session.getUri();
 
-                for (String key : uris.keySet()){
+                Function<IHTTPSession, Response> handler = uris.get(uri);
 
-                    if (uri.equals(key)){
-
-                        return uris.get(key);
-                    }
+                if (handler != null) {
+                    return handler.apply(session);
                 }
-
 
             try (InputStream is = getClass().getClassLoader().getResourceAsStream("dashboard.html")) {
                 if (is == null) return newFixedLengthResponse("dashboard.html wasn't found.");
